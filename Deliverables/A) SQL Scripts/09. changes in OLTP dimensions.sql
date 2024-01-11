@@ -92,7 +92,7 @@ INSERT INTO Chinook.dbo.Invoice
 
 
 INSERT INTO Chinook.dbo.InvoiceLine
-(InvoiceId, InvoiceLineId, TrackId, UnitPrice, Quantity)
+(InvoiceId, InvoiceLineId, TrackId,  UnitPrice, Quantity)
 VALUES
 (413,2241,1,0.99,1),
 (413,2242,2,0.99,1);

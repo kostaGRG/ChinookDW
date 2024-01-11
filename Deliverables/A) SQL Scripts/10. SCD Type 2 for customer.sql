@@ -3,7 +3,8 @@
 USE ChinookStaging
 GO
 
-declare @etldate date = '2013-12-23';
+-- declare @etldate date = '2013-12-23';
+
 
 -----------------------------------------------------------
 
@@ -28,6 +29,7 @@ c.Country
 FROM Chinook.dbo.Customer AS c
 
 -----------------------------------------------------------
+declare @etldate date = '2013-12-23';
 
 truncate table [ChinookStaging].[dbo].Sales;
 INSERT INTO Sales
@@ -73,6 +75,46 @@ CREATE TABLE Staging_DimCustomer (
     RowChangeReason VARCHAR(200) NULL
 );
 
+drop table if exists [ChinookStaging].[dbo].Staging_FactSales;
+
+
+CREATE TABLE Staging_FactSales (
+    InvoiceKey INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    CustomerKey INT NOT NULL,
+	EmployeeKey INT NOT NULL,
+    TrackKey INT NOT NULL,
+    InvoiceDateKey INT NOT NULL,
+    InvoiceTotalPrice NUMERIC(10,2) NOT NULL,
+	InvoiceUnitPrice NUMERIC(10,2) NOT NULL,
+	InvoiceQuantity INT NOT NULL
+);
+
+INSERT INTO ChinookStaging.dbo.Staging_FactSales(
+    CustomerKey,
+	EmployeeKey,
+    TrackKey,
+    InvoiceDateKey,
+    InvoiceTotalPrice,
+	InvoiceUnitPrice,
+	InvoiceQuantity)
+SELECT 
+	c.CustomerId,
+	e.EmployeeId,
+	t.TrackId,
+    CAST(FORMAT(InvoiceDate,'yyyyMMdd') AS INT),
+    i.Total,
+	il.UnitPrice,
+	il.Quantity
+FROM Chinook.dbo.Invoice i
+INNER JOIN Chinook.dbo.InvoiceLine il
+ON i.InvoiceId=il.InvoiceId
+INNER JOIN Chinook.dbo.Customer c
+ON i.CustomerId = c.CustomerId
+INNER JOIN Chinook.dbo.Employee e
+ON c.SupportRepId = e.EmployeeId
+INNER JOIN Chinook.dbo.Track  t
+ON t.TrackId = il.TrackId
+WHERE InvoiceDate >= @etldate;
 --------------------------------------------------------
 
 Insert into ChinookStaging.[dbo].Staging_DimCustomer(
@@ -182,19 +224,20 @@ INSERT INTO ChinookDW.[dbo].FactSales(
 	InvoiceUnitPrice,
 	InvoiceQuantity)
 SELECT 	
-	CustomerKey,
-	EmployeeKey,
-	TrackKey,
-    CAST(FORMAT(InvoiceDate,'yyyyMMdd') AS INT),
+	CustomerId,
+	EmployeeID,
+	TrackID,
+    InvoiceDateKey,
     InvoiceTotalPrice,
 	InvoiceUnitPrice,
 	InvoiceQuantity
 FROM 
-    ChinookStaging.dbo.Sales AS s
+    ChinookStaging.dbo.Staging_FactSales AS s
 INNER JOIN ChinookDW.dbo.DimCustomer AS c
-    ON c.CustomerID=s.CustomerId and c.RowIsCurrent = 1
+    ON c.CustomerID=s.CustomerKey and c.RowIsCurrent = 1
 INNER JOIN ChinookDW.dbo.DimEmployee as e
-	ON e.EmployeeID=s.EmployeeId and e.RowIsCurrent = 1
+	ON e.EmployeeID=s.EmployeeKey and e.RowIsCurrent = 1
 INNER JOIN ChinookDW.dbo.DimTrack AS t
-    ON t.TrackID=s.TrackId and t.RowIsCurrent = 1
+    ON t.TrackID=s.TrackKey and t.RowIsCurrent = 1
+
 
