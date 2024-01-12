@@ -13,3 +13,12 @@ The SSAS Tabular model is designed based on the DW, incorporating all relevant d
 
 ## D) Power BI Report
 A Power BI report has been developed for real-time sales analysis. This report establishes a live connection with the SSAS Tabular model, offering dynamic and interactive visualization capabilities. 
+
+## Contributors:
+1.  Konstantinos Gerogiannis  
+   email: kostas.gerogiannis04@gmail.com  
+   github: [kostaGRG](https://github.com/kostaGRG)
+
+2. Zacharias Walder Michalas    
+   email: zacmichalas@hotmail.com  
+   github: [zacwalder](https://github.com/zacwalder)
