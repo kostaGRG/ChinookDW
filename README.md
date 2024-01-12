@@ -1,4 +1,4 @@
-# ChinookDW
+# Chinook: From OLTP DB to DW
 ## Intro
 The purpose of this project is to present, organize and analyze sales of Melodica Media Corp. fostering informed decision-making within the organization. The data is drawn from the chinook database. The structure and organization of data is as follows:
 
